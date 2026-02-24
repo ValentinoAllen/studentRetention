@@ -70,41 +70,43 @@ export function ShapBarChart({ data, outcome }: ShapBarChartProps) {
   }
 
   return (
-    <div className="bg-white rounded-lg p-6 border border-border shadow-sm">
-      <h3 className="text-lg font-semibold mb-4 text-foreground">
+    <div className="bg-white rounded-lg p-4 md:p-6 border border-border shadow-sm">
+      <h3 className="text-base md:text-lg font-semibold mb-4 text-foreground">
         Feature Importance - {outcome}
       </h3>
-      <ResponsiveContainer width="100%" height={400}>
-        <BarChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
-          <XAxis
-            dataKey="feature"
-            angle={-45}
-            textAnchor="end"
-            height={80}
-            tick={{ fontSize: 12 }}
-          />
-          <YAxis label={{ value: 'SHAP Value', angle: -90, position: 'insideLeft' }} />
-          <Tooltip content={<CustomTooltip />} />
-          <Bar
-            dataKey="shap_value"
-            radius={[8, 8, 0, 0]}
-            onMouseEnter={(data) => setHoveredFeature(data.feature)}
-            onMouseLeave={() => setHoveredFeature(null)}
-          >
-            {chartData.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={getBarColor(entry)}
-                opacity={hoveredFeature === null || hoveredFeature === entry.feature ? 1 : 0.6}
-              />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+      <div className="overflow-x-auto">
+        <ResponsiveContainer width="100%" height={250} minHeight={250} className="min-h-[250px] md:min-h-[400px]">
+          <BarChart data={chartData} margin={{ bottom: 80, left: 10, right: 10 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
+            <XAxis
+              dataKey="feature"
+              angle={-45}
+              textAnchor="end"
+              height={100}
+              tick={{ fontSize: 11 }}
+            />
+            <YAxis label={{ value: 'SHAP Value', angle: -90, position: 'insideLeft' }} />
+            <Tooltip content={<CustomTooltip />} />
+            <Bar
+              dataKey="shap_value"
+              radius={[8, 8, 0, 0]}
+              onMouseEnter={(data) => setHoveredFeature(data.feature)}
+              onMouseLeave={() => setHoveredFeature(null)}
+            >
+              {chartData.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={getBarColor(entry)}
+                  opacity={hoveredFeature === null || hoveredFeature === entry.feature ? 1 : 0.6}
+                />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
 
       {/* Direction Legend */}
-      <div className="flex gap-6 mt-6 justify-center text-sm">
+      <div className="flex flex-col sm:flex-row gap-4 mt-6 justify-center text-xs sm:text-sm flex-wrap">
         {outcome === 'Dropout' && (
           <>
             <div className="flex items-center gap-2">

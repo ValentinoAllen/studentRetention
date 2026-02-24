@@ -43,6 +43,20 @@ export function PredictionForm({ onSubmit, isLoading = false }: PredictionFormPr
     mothers_qualification: 0,
   })
 
+  // Track which accordion sections are open on mobile (default to closed)
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    academic: false,
+    economic: false,
+    demographics: false,
+  })
+
+  const toggleSection = (section: string) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }))
+  }
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target
     setFormData((prev) => ({
@@ -102,6 +116,32 @@ export function PredictionForm({ onSubmit, isLoading = false }: PredictionFormPr
     setFormData(data)
   }
 
+  // Helper functions for summary lines
+  const getAcademicSummary = () => {
+    const parts = []
+    if (formData.cu1_grade > 0) parts.push(`Sem-1 Grade ${formData.cu1_grade}`)
+    if (formData.cu1_approved > 0) parts.push(`${formData.cu1_approved} units`)
+    if (formData.cu2_grade > 0) parts.push(`Sem-2 Grade ${formData.cu2_grade}`)
+    if (formData.cu2_approved > 0) parts.push(`${formData.cu2_approved} units`)
+    return parts.length > 0 ? parts.slice(0, 2).join(', ') : 'No data entered'
+  }
+
+  const getEconomicSummary = () => {
+    const parts = []
+    if (formData.unemployment_rate > 0) parts.push(`Unemp. ${formData.unemployment_rate}%`)
+    if (formData.inflation_rate > 0) parts.push(`Infl. ${formData.inflation_rate}%`)
+    if (formData.gdp > 0) parts.push(`GDP ${formData.gdp}B`)
+    return parts.length > 0 ? parts.slice(0, 2).join(', ') : 'No data entered'
+  }
+
+  const getDemographicsSummary = () => {
+    const parts = []
+    if (formData.age_at_enrollment > 0) parts.push(`Age ${formData.age_at_enrollment}`)
+    if (formData.debtor === 1) parts.push('Debtor')
+    if (formData.scholarship_holder === 1) parts.push('Scholarship')
+    return parts.length > 0 ? parts.join(', ') : 'No data entered'
+  }
+
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
       <h2 className="text-2xl font-semibold text-gray-900 mb-6">Make a Prediction</h2>
@@ -122,7 +162,7 @@ export function PredictionForm({ onSubmit, isLoading = false }: PredictionFormPr
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
         {/* Student ID */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Student ID</label>
@@ -131,12 +171,249 @@ export function PredictionForm({ onSubmit, isLoading = false }: PredictionFormPr
             name="studentId"
             value={formData.studentId}
             onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base md:text-sm"
           />
         </div>
 
-        {/* Academic Features */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Accordion: Academic Features */}
+        <div className="border border-gray-300 rounded-lg">
+          <button
+            type="button"
+            onClick={() => toggleSection('academic')}
+            className="w-full px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors rounded-lg"
+          >
+            <span className="font-medium text-gray-900">Academic Performance</span>
+            <svg
+              className={`w-5 h-5 text-gray-600 transition-transform ${expandedSections.academic ? 'rotate-180' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </button>
+
+          {/* Summary line on mobile when collapsed */}
+          {!expandedSections.academic && (
+            <div className="px-4 py-2 text-sm text-gray-600 bg-white md:hidden">{getAcademicSummary()}</div>
+          )}
+
+          {/* Expanded content */}
+          {expandedSections.academic && (
+            <div className="px-4 py-4 bg-white border-t border-gray-200 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Semester 1: Units Approved</label>
+                  <input
+                    type="number"
+                    name="cu1_approved"
+                    value={formData.cu1_approved}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base md:text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Semester 2: Units Approved</label>
+                  <input
+                    type="number"
+                    name="cu2_approved"
+                    value={formData.cu2_approved}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base md:text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Semester 1: Grade</label>
+                  <input
+                    type="number"
+                    name="cu1_grade"
+                    value={formData.cu1_grade}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base md:text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Semester 2: Grade</label>
+                  <input
+                    type="number"
+                    name="cu2_grade"
+                    value={formData.cu2_grade}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base md:text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Semester 1: Evaluations</label>
+                  <input
+                    type="number"
+                    name="cu1_evaluations"
+                    value={formData.cu1_evaluations}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base md:text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Semester 2: Evaluations</label>
+                  <input
+                    type="number"
+                    name="cu2_evaluations"
+                    value={formData.cu2_evaluations}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base md:text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Accordion: Economic Features */}
+        <div className="border border-gray-300 rounded-lg">
+          <button
+            type="button"
+            onClick={() => toggleSection('economic')}
+            className="w-full px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors rounded-lg"
+          >
+            <span className="font-medium text-gray-900">Economic Factors</span>
+            <svg
+              className={`w-5 h-5 text-gray-600 transition-transform ${expandedSections.economic ? 'rotate-180' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </button>
+
+          {/* Summary line on mobile when collapsed */}
+          {!expandedSections.economic && (
+            <div className="px-4 py-2 text-sm text-gray-600 bg-white md:hidden">{getEconomicSummary()}</div>
+          )}
+
+          {/* Expanded content */}
+          {expandedSections.economic && (
+            <div className="px-4 py-4 bg-white border-t border-gray-200 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Unemployment Rate (%)</label>
+                  <input
+                    type="number"
+                    name="unemployment_rate"
+                    value={formData.unemployment_rate}
+                    onChange={handleChange}
+                    step="0.1"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base md:text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Inflation Rate (%)</label>
+                  <input
+                    type="number"
+                    name="inflation_rate"
+                    value={formData.inflation_rate}
+                    onChange={handleChange}
+                    step="0.1"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base md:text-sm"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">GDP (Billions)</label>
+                <input
+                  type="number"
+                  name="gdp"
+                  value={formData.gdp}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base md:text-sm"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Accordion: Demographics */}
+        <div className="border border-gray-300 rounded-lg">
+          <button
+            type="button"
+            onClick={() => toggleSection('demographics')}
+            className="w-full px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors rounded-lg"
+          >
+            <span className="font-medium text-gray-900">Demographics</span>
+            <svg
+              className={`w-5 h-5 text-gray-600 transition-transform ${expandedSections.demographics ? 'rotate-180' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </button>
+
+          {/* Summary line on mobile when collapsed */}
+          {!expandedSections.demographics && (
+            <div className="px-4 py-2 text-sm text-gray-600 bg-white md:hidden">{getDemographicsSummary()}</div>
+          )}
+
+          {/* Expanded content */}
+          {expandedSections.demographics && (
+            <div className="px-4 py-4 bg-white border-t border-gray-200 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Age at Enrollment</label>
+                  <input
+                    type="number"
+                    name="age_at_enrollment"
+                    value={formData.age_at_enrollment}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base md:text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Mother's Qualification</label>
+                  <input
+                    type="number"
+                    name="mothers_qualification"
+                    value={formData.mothers_qualification}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base md:text-sm"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Is Debtor (0/1)</label>
+                  <input
+                    type="number"
+                    name="debtor"
+                    value={formData.debtor}
+                    onChange={handleChange}
+                    min="0"
+                    max="1"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base md:text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Scholarship Holder (0/1)</label>
+                  <input
+                    type="number"
+                    name="scholarship_holder"
+                    value={formData.scholarship_holder}
+                    onChange={handleChange}
+                    min="0"
+                    max="1"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base md:text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Semester 1: Units Approved</label>
             <input
@@ -157,141 +434,11 @@ export function PredictionForm({ onSubmit, isLoading = false }: PredictionFormPr
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Semester 1: Grade</label>
-            <input
-              type="number"
-              name="cu1_grade"
-              value={formData.cu1_grade}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Semester 2: Grade</label>
-            <input
-              type="number"
-              name="cu2_grade"
-              value={formData.cu2_grade}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Semester 1: Evaluations</label>
-            <input
-              type="number"
-              name="cu1_evaluations"
-              value={formData.cu1_evaluations}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Semester 2: Evaluations</label>
-            <input
-              type="number"
-              name="cu2_evaluations"
-              value={formData.cu2_evaluations}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-
-        {/* Economic Features */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Unemployment Rate (%)</label>
-            <input
-              type="number"
-              name="unemployment_rate"
-              value={formData.unemployment_rate}
-              onChange={handleChange}
-              step="0.1"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Inflation Rate (%)</label>
-            <input
-              type="number"
-              name="inflation_rate"
-              value={formData.inflation_rate}
-              onChange={handleChange}
-              step="0.1"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">GDP (Billions)</label>
-            <input
-              type="number"
-              name="gdp"
-              value={formData.gdp}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-
-        {/* Student Demographics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Age at Enrollment</label>
-            <input
-              type="number"
-              name="age_at_enrollment"
-              value={formData.age_at_enrollment}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Is Debtor (0/1)</label>
-            <input
-              type="number"
-              name="debtor"
-              value={formData.debtor}
-              onChange={handleChange}
-              min="0"
-              max="1"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Scholarship Holder (0/1)</label>
-            <input
-              type="number"
-              name="scholarship_holder"
-              value={formData.scholarship_holder}
-              onChange={handleChange}
-              min="0"
-              max="1"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Mother's Qualification Level</label>
-          <input
-            type="number"
-            name="mothers_qualification"
-            value={formData.mothers_qualification}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        {/* Submit Button */}
+        {/* Submit Button - visible on desktop, hidden on mobile (FAB used instead) */}
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="hidden md:block w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? 'Making Prediction...' : 'Make Prediction'}
         </button>

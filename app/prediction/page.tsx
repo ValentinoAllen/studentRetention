@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { PredictionForm, type PredictionFormData } from '@/components/PredictionForm'
 import { PredictionReport } from '@/components/PredictionReport'
+import { BottomSheet } from '@/components/BottomSheet'
 import type { Outcome, ShapFeature } from '@/lib/types'
 
 // Sample SHAP features for predictions - in production, this would come from the model
@@ -52,6 +53,7 @@ export default function PredictionPage() {
   } | null>(null)
 
   const [isLoading, setIsLoading] = useState(false)
+  const [showMobileSheet, setShowMobileSheet] = useState(false)
 
   const simulatePrediction = (data: PredictionFormData) => {
     setIsLoading(true)
@@ -105,44 +107,48 @@ export default function PredictionPage() {
         },
         studentId: data.studentId,
       })
+      setShowMobileSheet(true)
       setIsLoading(false)
     }, 1000)
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6 pb-32 md:pb-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Student Retention Predictor</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Student Retention Predictor</h1>
+          <p className="text-gray-600 text-sm md:text-base">
             Enter student information to generate a retention risk assessment and exportable report.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
           {/* Form Section */}
           <div className="lg:col-span-1">
             <PredictionForm onSubmit={simulatePrediction} isLoading={isLoading} />
           </div>
 
-          {/* Results Section */}
-          <div className="lg:col-span-2">
+          {/* Results Section - Hidden on mobile (shown in bottom sheet instead) */}
+          <div className="lg:col-span-2 hidden md:block">
             {prediction ? (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                <h2 className="text-2xl font-semibold text-gray-900 mb-6">Prediction Results</h2>
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8">
+                <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">Prediction Results</h2>
 
                 {/* Export Button */}
-                <div className="mb-8 flex gap-3">
+                <div className="mb-8 flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={() => window.print()}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                    className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm md:text-base"
                   >
                     Export PDF Report
                   </button>
                   <button
-                    onClick={() => setPrediction(null)}
-                    className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-400 transition-colors"
+                    onClick={() => {
+                      setPrediction(null)
+                      setShowMobileSheet(false)
+                    }}
+                    className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-400 transition-colors text-sm md:text-base"
                   >
                     New Prediction
                   </button>
@@ -291,21 +297,141 @@ export default function PredictionPage() {
         </div>
 
         {/* Navigation Links */}
-        <div className="mt-12 flex gap-4 flex-wrap">
+        <div className="mt-12 flex gap-3 flex-wrap text-sm md:text-base">
           <a
             href="/shap"
-            className="px-6 py-3 bg-white text-blue-600 rounded-lg font-medium border border-blue-600 hover:bg-blue-50 transition-colors"
+            className="px-4 md:px-6 py-2 md:py-3 bg-white text-blue-600 rounded-lg font-medium border border-blue-600 hover:bg-blue-50 transition-colors"
           >
             View SHAP Analysis
           </a>
           <a
             href="/evaluation"
-            className="px-6 py-3 bg-white text-blue-600 rounded-lg font-medium border border-blue-600 hover:bg-blue-50 transition-colors"
+            className="px-4 md:px-6 py-2 md:py-3 bg-white text-blue-600 rounded-lg font-medium border border-blue-600 hover:bg-blue-50 transition-colors"
           >
             View Model Evaluation
           </a>
         </div>
       </div>
+
+      {/* Mobile Bottom Sheet for Results */}
+      <BottomSheet
+        isOpen={showMobileSheet}
+        onClose={() => setShowMobileSheet(false)}
+        title="Prediction Results"
+      >
+        {prediction && (
+          <div className="space-y-6">
+            {/* Prediction Result Box */}
+            <div className="p-4 rounded-lg border-2 border-gray-300">
+              <h3 className="text-xs font-semibold text-gray-600 mb-3">PREDICTED OUTCOME</h3>
+              <div
+                className={`flex items-center gap-4 ${
+                  prediction.outcome === 'Dropout'
+                    ? 'bg-red-50'
+                    : prediction.outcome === 'Graduate'
+                      ? 'bg-green-50'
+                      : 'bg-blue-50'
+                } p-4 rounded-lg`}
+              >
+                <div
+                  className={`px-4 py-3 text-white font-bold rounded flex-shrink-0 ${
+                    prediction.outcome === 'Dropout'
+                      ? 'bg-red-600'
+                      : prediction.outcome === 'Graduate'
+                        ? 'bg-green-600'
+                        : 'bg-blue-600'
+                  }`}
+                >
+                  <div className="text-lg">{prediction.outcome}</div>
+                  <div className="text-xs mt-1">{(prediction.confidence * 100).toFixed(1)}%</div>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-700">
+                    {prediction.outcome === 'Dropout'
+                      ? 'This student shows elevated risk factors and requires intervention support.'
+                      : prediction.outcome === 'Graduate'
+                        ? 'This student is on track for successful degree completion.'
+                        : 'This student is expected to continue their studies.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Probability Breakdown */}
+            <div>
+              <h3 className="text-sm font-semibold text-gray-900 mb-3">Probability Breakdown</h3>
+              <div className="space-y-3">
+                {Object.entries(prediction.probabilities).map(([outcome, prob]) => (
+                  <div key={outcome}>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-xs font-medium text-gray-700">{outcome}</span>
+                      <span className="text-xs font-bold text-gray-900">{(prob * 100).toFixed(1)}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className={`h-2 rounded-full ${
+                          outcome === 'Dropout'
+                            ? 'bg-red-600'
+                            : outcome === 'Graduate'
+                              ? 'bg-green-600'
+                              : 'bg-blue-600'
+                        }`}
+                        style={{ width: `${prob * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Top Features */}
+            <div>
+              <h3 className="text-sm font-semibold text-gray-900 mb-3">Top 5 Most Influential Features</h3>
+              <div className="space-y-2">
+                {SAMPLE_SHAP_FEATURES.slice(0, 5).map((feature, idx) => (
+                  <div key={idx} className="p-2 bg-gray-50 rounded text-xs border border-gray-200">
+                    <div className="font-semibold text-gray-900">{feature.feature}</div>
+                    <p className="text-gray-600 mt-1">{feature.explanation}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Export Button in Sheet */}
+            <button
+              onClick={() => window.print()}
+              className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm"
+            >
+              Export PDF Report
+            </button>
+          </div>
+        )}
+      </BottomSheet>
+
+      {/* Mobile Floating Action Button */}
+      <button
+        onClick={(e) => {
+          e.preventDefault()
+          document.querySelector('form')?.dispatchEvent(new Event('submit', { bubbles: true }))
+        }}
+        disabled={isLoading}
+        className="fixed bottom-6 right-6 md:hidden z-30 w-16 h-16 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-full shadow-lg flex items-center justify-center font-bold text-2xl transition-all active:scale-95"
+        aria-label="Make Prediction"
+        title="Make Prediction"
+      >
+        {isLoading ? (
+          <svg className="w-6 h-6 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
+          </svg>
+        ) : (
+          '→'
+        )}
+      </button>
     </main>
   )
 }

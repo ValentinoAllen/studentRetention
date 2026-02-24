@@ -12,21 +12,21 @@ export default function EvaluationPage() {
   const classLabels = ['Dropout', 'Enrolled', 'Graduate'];
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Model Evaluation</h1>
-          <p className="text-gray-600">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Model Evaluation</h1>
+          <p className="text-gray-600 text-sm md:text-base">
             Comprehensive performance metrics and confusion matrix analysis for the student retention prediction model.
           </p>
         </div>
 
         {/* Confusion Matrix Section */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 mb-8">
-          <div className="mb-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-2">Confusion Matrix</h2>
-            <p className="text-sm text-gray-600">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-8 mb-6 md:mb-8">
+          <div className="mb-4 md:mb-6">
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-2">Confusion Matrix</h2>
+            <p className="text-xs md:text-sm text-gray-600">
               Cell colors indicate prediction frequency (darker = more predictions). Each cell shows the count and 
               percentage of that true class. Hover over cells to see detailed explanations.
             </p>
@@ -45,14 +45,14 @@ export default function EvaluationPage() {
         <ConfusionMatrixSummary />
 
         {/* Detailed Metrics */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 mt-8">
-          <h3 className="text-xl font-semibold text-gray-900 mb-4">Key Metrics by Class</h3>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-8 mt-6 md:mt-8">
+          <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-4">Key Metrics by Class</h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
             {/* Dropout Metrics */}
-            <div className="p-4 border border-red-200 rounded-lg bg-red-50">
-              <h4 className="font-semibold text-red-900 mb-3">Dropout Class</h4>
-              <div className="space-y-2 text-sm text-red-800">
+            <div className="p-3 md:p-4 border border-red-200 rounded-lg bg-red-50">
+              <h4 className="font-semibold text-red-900 mb-3 text-sm md:text-base">Dropout Class</h4>
+              <div className="space-y-2 text-xs md:text-sm text-red-800">
                 <div>
                   <span className="font-medium">True Positives:</span> 248
                 </div>
@@ -69,9 +69,9 @@ export default function EvaluationPage() {
             </div>
 
             {/* Enrolled Metrics */}
-            <div className="p-4 border border-blue-200 rounded-lg bg-blue-50">
-              <h4 className="font-semibold text-blue-900 mb-3">Enrolled Class</h4>
-              <div className="space-y-2 text-sm text-blue-800">
+            <div className="p-3 md:p-4 border border-blue-200 rounded-lg bg-blue-50">
+              <h4 className="font-semibold text-blue-900 mb-3 text-sm md:text-base">Enrolled Class</h4>
+              <div className="space-y-2 text-xs md:text-sm text-blue-800">
                 <div>
                   <span className="font-medium">True Positives:</span> 103
                 </div>
@@ -88,9 +88,9 @@ export default function EvaluationPage() {
             </div>
 
             {/* Graduate Metrics */}
-            <div className="p-4 border border-green-200 rounded-lg bg-green-50">
-              <h4 className="font-semibold text-green-900 mb-3">Graduate Class</h4>
-              <div className="space-y-2 text-sm text-green-800">
+            <div className="p-3 md:p-4 border border-green-200 rounded-lg bg-green-50">
+              <h4 className="font-semibold text-green-900 mb-3 text-sm md:text-base">Graduate Class</h4>
+              <div className="space-y-2 text-xs md:text-sm text-green-800">
                 <div>
                   <span className="font-medium">True Positives:</span> 411
                 </div>
@@ -109,10 +109,16 @@ export default function EvaluationPage() {
         </div>
 
         {/* Navigation Links */}
-        <div className="mt-8 flex gap-4">
+        <div className="mt-8 flex gap-3 flex-wrap text-sm md:text-base">
+          <a
+            href="/prediction"
+            className="px-4 md:px-6 py-2 md:py-3 bg-white text-blue-600 rounded-lg font-medium border border-blue-600 hover:bg-blue-50 transition-colors"
+          >
+            Make Prediction
+          </a>
           <a
             href="/shap"
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            className="px-4 md:px-6 py-2 md:py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
           >
             View SHAP Analysis
           </a>

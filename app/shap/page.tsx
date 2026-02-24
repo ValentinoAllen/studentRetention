@@ -63,12 +63,12 @@ export default function ShapAnalysisPage() {
 
   return (
     <main className="min-h-screen bg-white">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <header className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
+        <header className="mb-6 md:mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
             SHAP Analysis Dashboard
           </h1>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-muted-foreground text-base md:text-lg">
             Explainable AI for Student Retention Prediction
           </p>
         </header>
@@ -80,7 +80,7 @@ export default function ShapAnalysisPage() {
         />
 
         {/* Charts Grid */}
-        <div className="grid grid-cols-1 gap-8 mb-8">
+        <div className="grid grid-cols-1 gap-6 md:gap-8 mb-6 md:mb-8">
           <ShapBarChart 
             data={currentData}
             outcome={selectedOutcome}
@@ -91,25 +91,25 @@ export default function ShapAnalysisPage() {
         <ResearchCallout />
 
         {/* Info Section */}
-        <section className="bg-muted rounded-lg p-6 mt-8">
-          <h3 className="text-lg font-semibold text-foreground mb-4">
+        <section className="bg-muted rounded-lg p-4 md:p-6 mt-6 md:mt-8">
+          <h3 className="text-base md:text-lg font-semibold text-foreground mb-4">
             How to Read This Dashboard
           </h3>
-          <ul className="space-y-3 text-muted-foreground">
+          <ul className="space-y-2 md:space-y-3 text-muted-foreground text-sm md:text-base">
             <li className="flex gap-3">
-              <span className="font-bold text-foreground">📊</span>
+              <span className="font-bold text-foreground flex-shrink-0">📊</span>
               <span>Select an outcome (Dropout, Graduate, Enrolled) to see which features are most important for that prediction</span>
             </li>
             <li className="flex gap-3">
-              <span className="font-bold text-foreground">▲▼</span>
+              <span className="font-bold text-foreground flex-shrink-0">▲▼</span>
               <span>Arrows indicate direction: high values (▲) vs low values (▼) that influence the outcome</span>
             </li>
             <li className="flex gap-3">
-              <span className="font-bold text-foreground">👆</span>
+              <span className="font-bold text-foreground flex-shrink-0">👆</span>
               <span>Hover over any bar to see the full feature name, SHAP value, and a plain-language explanation</span>
             </li>
             <li className="flex gap-3">
-              <span className="font-bold text-foreground">🔍</span>
+              <span className="font-bold text-foreground flex-shrink-0">🔍</span>
               <span>Larger bars mean the feature has stronger predictive power for that outcome</span>
             </li>
           </ul>
