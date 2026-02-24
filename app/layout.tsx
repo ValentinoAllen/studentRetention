@@ -1,6 +1,7 @@
 import './globals.css'
 import type { Viewport } from 'next'
 import { Navigation } from '@/components/Navigation'
+import { Analytics } from '@vercel/analytics/next'
 
 export const metadata = {
   title: 'Student Retention Predictor',
@@ -23,6 +24,7 @@ export default function RootLayout({
       <body className="bg-gray-50">
         <Navigation />
         {children}
+        <Analytics />
       </body>
     </html>
   )
