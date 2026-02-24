@@ -1,12 +1,15 @@
 import './globals.css'
+import type { Viewport } from 'next'
 
 export const metadata = {
   title: 'Student Retention Predictor',
   description: 'SHAP-based student retention prediction, analysis, and reporting system',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-  },
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  userScalable: true,
 }
 
 export default function RootLayout({
